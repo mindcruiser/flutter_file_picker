@@ -42,6 +42,20 @@
 
 - (UIViewController *)viewController {
     UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+    if (!rootViewController) {
+        /// rootViewController = nil
+        if (@available(iOS 13, *)) {
+            for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+                if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                    for (UIWindow *window in windowScene.windows) {
+                        if (window.isKeyWindow) {
+                            rootViewController = window.rootViewController;
+                        }
+                    }
+                }
+            }
+        }
+    }
     while (rootViewController.presentedViewController) {
         rootViewController = rootViewController.presentedViewController;
     }
