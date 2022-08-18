@@ -10,6 +10,7 @@ class PlatformFile {
     required this.size,
     this.bytes,
     this.readStream,
+    this.identifier,
   }) : _path = path;
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
@@ -18,6 +19,7 @@ class PlatformFile {
       path: data['path'],
       bytes: data['bytes'],
       size: data['size'],
+      identifier: data['identifier'],
       readStream: readStream,
     );
   }
@@ -31,7 +33,7 @@ class PlatformFile {
   /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
   String? _path;
 
-  String get path {
+  String? get path {
     if (kIsWeb) {
       /// https://github.com/miguelpruivo/flutter_file_picker/issues/751
       throw '''
@@ -40,7 +42,7 @@ class PlatformFile {
       Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
       ''';
     }
-    return _path!;
+    return _path;
   }
 
   /// File name including its extension.
@@ -54,9 +56,50 @@ class PlatformFile {
   /// File content as stream
   final Stream<List<int>>? readStream;
 
-  /// The file size in bytes.
+  /// The file size in bytes. Defaults to `0` if the file size could not be
+  /// determined.
   final int size;
+
+  /// The platform identifier for the original file, refers to an [Uri](https://developer.android.com/reference/android/net/Uri) on Android and
+  /// to a [NSURL](https://developer.apple.com/documentation/foundation/nsurl) on iOS.
+  /// Is set to `null` on all other platforms since those are all already referencing the original file content.
+  ///
+  /// Note: You can't use this to create a Dart `File` instance since this is a safe-reference for the original platform files, for
+  /// that the [path] property should be used instead.
+  final String? identifier;
 
   /// File extension for this file.
   String? get extension => name.split('.').last;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    return other is PlatformFile &&
+        (kIsWeb || other.path == path) &&
+        other.name == name &&
+        other.bytes == bytes &&
+        other.readStream == readStream &&
+        other.identifier == identifier &&
+        other.size == size;
+  }
+
+  @override
+  int get hashCode {
+    return kIsWeb
+        ? 0
+        : path.hashCode ^
+            name.hashCode ^
+            bytes.hashCode ^
+            readStream.hashCode ^
+            identifier.hashCode ^
+            size.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+  }
 }

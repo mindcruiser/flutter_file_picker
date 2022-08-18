@@ -29,7 +29,7 @@ typedef GetOpenFileNameWDart = int Function(
 
 /// Function from Win32 API to convert an item identifier list to a file system path.
 ///
-/// Returns [true] if successful; otherwise, [false].
+/// Returns `true` if successful; otherwise, `false`.
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetpathfromidlistw
@@ -38,8 +38,8 @@ typedef SHGetPathFromIDListW = Int8 Function(
   /// the root of the namespace (the desktop).
   Pointer pidl,
 
-  /// The address of a buffer to receive the file system path. This buffer must be at least [maxPath]
-  /// characters in size.
+  /// The address of a buffer to receive the file system path. This buffer must be at least
+  /// [maximumPathLength] characters in size.
   Pointer<Utf16> pszPath,
 );
 
@@ -47,6 +47,23 @@ typedef SHGetPathFromIDListW = Int8 Function(
 typedef SHGetPathFromIDListWDart = int Function(
   Pointer pidl,
   Pointer<Utf16> pszPath,
+);
+
+/// Function from Win32 API to create a save dialog box that lets the user
+/// specify the drive, directory, and name of a file to save.
+/// Reference:
+/// https://docs.microsoft.com/en-us/windows/win32/api/commdlg/nf-commdlg-getsavefilenamew
+typedef GetSaveFileNameW = Int8 Function(
+  /// A pointer to an [OPENFILENAMEW] structure that contains information used
+  /// to initialize the dialog box. When the function [GetSaveFileNameW]
+  /// returns, this structure contains information about the user's file
+  /// selection.
+  Pointer unnamedParam1,
+);
+
+/// Dart equivalent of [GetSaveFileNameW]
+typedef GetSaveFileNameWDart = int Function(
+  Pointer unnamedParam1,
 );
 
 /// Struct from Win32 API that contains parameters for the [SHBrowseForFolderW] function and receives
@@ -60,11 +77,11 @@ class BROWSEINFOA extends Struct {
 
   /// A PIDL that specifies the location of the root folder from which to start browsing. Only the
   /// specified folder and its subfolders in the namespace hierarchy appear in the dialog box. This
-  /// member can be [null]; in that case, a default location is used.
+  /// member can be `null`; in that case, a default location is used.
   external Pointer pidlRoot;
 
   /// Pointer to a buffer to receive the display name of the folder selected by the user. The size
-  /// of this buffer is assumed to be [maxPath] characters.
+  /// of this buffer is assumed to be [maximumPathLength] characters.
   external Pointer<Utf16> pszDisplayName;
 
   /// Pointer to a null-terminated string that is displayed above the tree view control in the dialog
@@ -77,7 +94,7 @@ class BROWSEINFOA extends Struct {
   external int ulFlags;
 
   /// Pointer to an application-defined function that the dialog box calls when an event occurs. For
-  /// more information, see the BrowseCallbackProc function. This member can be [null].
+  /// more information, see the BrowseCallbackProc function. This member can be `null`.
   external Pointer lpfn;
 
   /// An application-defined value that the dialog box passes to the callback function, if one is
@@ -100,19 +117,19 @@ class OPENFILENAMEW extends Struct {
   @Uint32()
   external int lStructSize;
 
-  /// A handle to the window that owns the dialog box. This member can be any valid window handle, or it can be [null] if the dialog box has no owner.
+  /// A handle to the window that owns the dialog box. This member can be any valid window handle, or it can be `null` if the dialog box has no owner.
   external Pointer hwndOwner;
 
   /// If the OFN_ENABLETEMPLATEHANDLE flag is set in the Flags member, hInstance is a handle to a memory object containing a dialog box template. If the OFN_ENABLETEMPLATE flag is set, hInstance is a handle to a module that contains a dialog box template named by the lpTemplateName member. If neither flag is set, this member is ignored. If the OFN_EXPLORER flag is set, the system uses the specified template to create a dialog box that is a child of the default Explorer-style dialog box. If the OFN_EXPLORER flag is not set, the system uses the template to create an old-style dialog box that replaces the default dialog box.
   external Pointer hInstance;
 
-  /// A buffer containing pairs of null-terminated filter strings. The last string in the buffer must be terminated by two [null] characters.
+  /// A buffer containing pairs of null-terminated filter strings. The last string in the buffer must be terminated by two `null` characters.
   external Pointer<Utf16> lpstrFilter;
 
   /// A static buffer that contains a pair of null-terminated filter strings for preserving the filter pattern chosen by the user.
   external Pointer<Utf16> lpstrCustomFilter;
 
-  /// The size, in characters, of the buffer identified by [lpstrCustomFilter]. This buffer should be at least 40 characters long. This member is ignored if [lpstrCustomFilter] is [null] or points to a [null] string.
+  /// The size, in characters, of the buffer identified by [lpstrCustomFilter]. This buffer should be at least 40 characters long. This member is ignored if [lpstrCustomFilter] is `null` or points to a `null` string.
   @Uint32()
   external int nMaxCustFilter;
 
@@ -120,24 +137,24 @@ class OPENFILENAMEW extends Struct {
   @Uint32()
   external int nFilterIndex;
 
-  /// The file name used to initialize the File Name edit control. The first character of this buffer must be [null] if initialization is not necessary.
+  /// The file name used to initialize the File Name edit control. The first character of this buffer must be `null` if initialization is not necessary.
   external Pointer<Utf16> lpstrFile;
 
-  /// The size, in characters, of the buffer pointed to by lpstrFile. The buffer must be large enough to store the path and file name string or strings, including the terminating [null] character. The GetOpenFileName and GetSaveFileName functions return [false] if the buffer is too small to contain the file information. The buffer should be at least 256 characters long.
+  /// The size, in characters, of the buffer pointed to by lpstrFile. The buffer must be large enough to store the path and file name string or strings, including the terminating `null` character. The GetOpenFileName and GetSaveFileName functions return `false` if the buffer is too small to contain the file information. The buffer should be at least 256 characters long.
   @Uint32()
   external int nMaxFile;
 
-  /// The file name and extension (without path information) of the selected file. This member can be [null].
+  /// The file name and extension (without path information) of the selected file. This member can be `null`.
   external Pointer<Utf16> lpstrFileTitle;
 
-  /// The size, in characters, of the buffer pointed to by [lpstrFileTitle]. This member is ignored if [lpstrFileTitle] is [null].
+  /// The size, in characters, of the buffer pointed to by [lpstrFileTitle]. This member is ignored if [lpstrFileTitle] is `null`.
   @Uint32()
   external int nMaxFileTitle;
 
   /// The initial directory. The algorithm for selecting the initial directory varies on different platforms.
   external Pointer<Utf16> lpstrInitialDir;
 
-  /// A string to be placed in the title bar of the dialog box. If this member is [null], the system uses the default title (that is, Save As or Open).
+  /// A string to be placed in the title bar of the dialog box. If this member is `null`, the system uses the default title (that is, Save As or Open).
   external Pointer<Utf16> lpstrTitle;
 
   /// A set of bit flags you can use to initialize the dialog box. When the dialog box returns, it sets these flags to indicate the user's input.
@@ -189,7 +206,7 @@ const bifEditBox = 0x00000010;
 const bifNewDialogStyle = 0x00000040;
 
 /// In the Windows API, the maximum length for a path is MAX_PATH, which is defined as 260 characters.
-const maxPath = 260;
+const maximumPathLength = 260;
 
 /// The File Name list box allows multiple selections.
 const ofnAllowMultiSelect = 0x00000200;

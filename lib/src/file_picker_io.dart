@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -26,11 +25,13 @@ class FilePickerIO extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     String? dialogTitle,
+    String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
     bool? allowCompression = true,
     bool allowMultiple = false,
     bool? withData = false,
     bool? withReadStream = false,
+    bool lockParentWindow = false,
   }) =>
       _getPath(
         type,
@@ -47,7 +48,11 @@ class FilePickerIO extends FilePicker {
       _channel.invokeMethod<bool>('clear');
 
   @override
-  Future<String?> getDirectoryPath({String? dialogTitle}) async {
+  Future<String?> getDirectoryPath({
+    String? dialogTitle,
+    bool lockParentWindow = false,
+    String? initialDirectory,
+  }) async {
     try {
       return await _channel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {

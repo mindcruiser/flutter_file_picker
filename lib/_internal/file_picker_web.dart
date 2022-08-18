@@ -37,13 +37,15 @@ class FilePickerWeb extends FilePicker {
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool allowMultiple = false,
     Function(FilePickerStatus)? onFileLoading,
-    bool? allowCompression,
-    bool? withData = true,
-    bool? withReadStream = false,
+    bool allowCompression = true,
+    bool withData = true,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
@@ -58,6 +60,7 @@ class FilePickerWeb extends FilePicker {
     uploadInput.draggable = true;
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = accept;
+    uploadInput.style.display = 'none';
 
     bool changeEventTriggered = false;
 
@@ -96,19 +99,19 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
-      files.forEach((File file) {
-        if (withReadStream!) {
+      for (File file in files) {
+        if (withReadStream) {
           addPickedFile(file, null, null, _openFileReadStream(file));
-          return;
+          continue;
         }
 
-        if (!withData!) {
+        if (!withData) {
           final FileReader reader = FileReader();
           reader.onLoadEnd.listen((e) {
             addPickedFile(file, null, reader.result as String?, null);
           });
           reader.readAsDataUrl(file);
-          return;
+          continue;
         }
 
         final FileReader reader = FileReader();
@@ -116,7 +119,7 @@ class FilePickerWeb extends FilePicker {
           addPickedFile(file, reader.result as Uint8List?, null, null);
         });
         reader.readAsArrayBuffer(file);
-      });
+      }
     }
 
     void cancelledEventListener(_) {
